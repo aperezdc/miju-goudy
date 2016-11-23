@@ -46,7 +46,8 @@ class Rule(object):
 LIGATURE_RULES = (Rule(r"[AEIOUaeiou]", r"[AEIOUaeiou]macron"),
                   Rule(r"asciitilde", r"[Nn]tilde", r"[Nn]"),
                   Rule(r"period", components=r"[A-Za-z](?:,[A-Za-z])?"),
-                  Rule(r"quotedbl", components=r"[A-Za-z]"))
+                  Rule(r"quotedbl", components=r"[A-Za-z]"),
+                  Rule(r"exclam", components=r"question"))
 
 # https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6name.html
 NAME_ID_COPYRIGHT         =  0
