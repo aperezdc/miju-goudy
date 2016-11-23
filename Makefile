@@ -8,6 +8,7 @@ EOT      := $(patsubst %,font/MijuGoudy-%.eot,$(VARIANTS))
 SVG      := $(patsubst %,font/MijuGoudy-%.svg,$(VARIANTS))
 WOFF     := $(patsubst %,font/MijuGoudy-%.woff,$(VARIANTS))
 WOFF2    := $(patsubst %,font/MijuGoudy-%.woff2,$(VARIANTS))
+GZIPPED  := $(patsubst %,%.gz,$(TTF) $(EOT) $(SVG))
 
 all: ttf eot svg woff woff2
 
@@ -16,7 +17,8 @@ eot: $(EOT)
 svg: $(SVG)
 woff: $(WOFF)
 woff2: $(WOFF2)
-.PHONY: ttf eot svg woff woff2
+compress: $(GZIPPED)
+.PHONY: ttf eot svg woff woff2 compress
 
 src-ttx: $(SRC_TTX)
 dst-ttx: $(DST_TTX)
@@ -36,3 +38,6 @@ font/MijuGoudy-%.ttf: sukhumala/Sukhumala-%.otf %.ttx
 
 %.woff2: %.ttf
 	@woff2_compress $<
+
+%.gz: %
+	zopfli -i50 -c $< > $@
