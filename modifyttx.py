@@ -8,6 +8,7 @@
 
 from xml.etree import ElementTree
 import sys
+import re
 
 # Font name replacements. These are applied to elements in the "name" table.
 SRC_NAME   = "Sukhumala"
@@ -17,6 +18,35 @@ DST_PSNAME = DST_NAME.replace(" ", "")
 
 # Additions to authors and copyright notice. Also in the "name" table.
 AUTHOR_ADD = "Adrián Pérez de Castro"
+
+# Ligatures to remove.
+class Rule(object):
+    def __init__(self, start, dest=".*", components=".*"):
+        self._start_re = re.compile("^" + start + "$")
+        self._dest_re = re.compile("^" + dest + "$")
+        self._comp_re = re.compile("^" + components + "$")
+
+    def matches(self, node):
+        if node.tag != "LigatureSet":
+            return ()
+        start_glyph = node.get("glyph", None)
+        if start_glyph is None:
+            return ()
+        if not self._start_re.match(start_glyph):
+            return ()
+        for child in node:
+            components = child.get("components", None)
+            substglyph = child.get("glyph", None)
+            if components is None: continue
+            if substglyph is None: continue 
+            if self._comp_re.match(components) and self._dest_re.match(substglyph):
+                yield child
+
+
+LIGATURE_RULES = (Rule(r"[AEIOUaeiou]", r"[AEIOUaeiou]macron"),
+                  Rule(r"asciitilde", r"[Nn]tilde", r"[Nn]"),
+                  Rule(r"period", components=r"[A-Za-z](?:,[A-Za-z])?"),
+                  Rule(r"quotedbl", components=r"[A-Za-z]"))
 
 # https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6name.html
 NAME_ID_COPYRIGHT         =  0
@@ -34,22 +64,23 @@ class FontWrangler(object):
     def __init__(self, et):
         self._etree = et
 
-    def _do_visit_nodes(self, prefix, iterable):
-        for node in iterable:
+    def _do_visit_nodes(self, prefix, parent, silent=()):
+        for node in parent:
             visitor_name = prefix + node.tag
             f = getattr(self, visitor_name, None)
             if callable(f):
-                f(node)
-            else:
+                f(node, parent)
+            elif node.tag not in silent:
                 print("Missing:", visitor_name, "node:", node, file=sys.stderr)
 
     def wrangle(self):
-        self._do_visit_nodes("visit_", self._etree.getroot())
+        root = self._etree.getroot()
+        for node in root.findall("./name/namerecord"):
+            self.visit_namerecord(node)
+        for node in root.findall("./GSUB/LookupList/Lookup/LigatureSubst/LigatureSet"):
+            self.visit_ligature_set(node)
 
-    def visit_name(self, node):
-        self._do_visit_nodes("visit_name_", node)
-
-    def visit_name_namerecord(self, node):
+    def visit_namerecord(self, node):
         nameID = int(node.get("nameID"))
         if nameID in (NAME_ID_FONT_FAMILY,
                       NAME_ID_FONT_SUBFAMILY,
@@ -63,6 +94,11 @@ class FontWrangler(object):
             node.text += "Copyright (c) 2016 " + AUTHOR_ADD
         elif nameID == NAME_ID_MANUFACTURER_NAME:
             node.text = AUTHOR_ADD
+
+    def visit_ligature_set(self, node):
+        for rule in LIGATURE_RULES:
+            for child in rule.matches(node):
+                node.remove(child)
 
 
 if __name__ == "__main__":
