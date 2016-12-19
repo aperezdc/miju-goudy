@@ -2,8 +2,11 @@ Miju Goudy
 ==========
 
 A version of Goudy Oldstyle with the four basic variants (regular, bold,
-italic, bold-italic), plus a decorative one (“hand tooled”). Miju Goudy takes
-the [Sukhumala](http://www.softerviews.org/Fonts.html#Sukhumala) type face by
+italic, bold-italic), plus a decorative one (“hand tooled”). This font is used
+as main body text for the [Miju Magazine](https://miju.fi).
+
+Miju Goudy takes the
+[Sukhumala](http://www.softerviews.org/Fonts.html#Sukhumala) type face by
 Bhikkhu Pesala, and removes the non-standard contextual ligatures which it has
 added to allow direct usage of [Velthuis
 transliteration](https://en.wikipedia.org/wiki/Velthuis).
