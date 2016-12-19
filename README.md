@@ -10,7 +10,7 @@ transliteration](https://en.wikipedia.org/wiki/Velthuis).
 
 Sukhumala itself is based upon [Barry Schwartz](http://www.crudfactory.com/)'s
 [Sorts Mill Goudy](https://www.theleagueofmoveabletype.com/sorts-mill-goudy)
-([source](https://github.com/theleagueof/sorts-mill-goudy)
+([source](https://github.com/theleagueof/sorts-mill-goudy)).
 
 
 Licensing
